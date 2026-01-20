@@ -1,9 +1,6 @@
 package main
 
-import (
-	
-)
-
 func main() {
-	startfunc()
+	cfg := &config{}
+	startfunc(cfg)
 }

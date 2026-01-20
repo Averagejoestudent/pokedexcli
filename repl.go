@@ -5,16 +5,66 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	//"errors"
 )
 
-func startfunc() {
+type config struct {
+	//pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+}
+
+type cliCommand struct {
+	name        string
+	description string
+	callback    func(*config) error
+}
+
+func getCommands() map[string]cliCommand {
+	return map[string]cliCommand{
+		"mapb": {
+			name:        "mapb",
+			description: "displays the names of 20 location areas",
+			callback:    commandMapb,
+		},
+		"map": {
+			name:        "map",
+			description: "displays the names of 20 location areas",
+			callback:    commandMap,
+		},
+		"help": {
+			name:        "help",
+			description: "Displays a help message",
+			callback:    commandHelp,
+		},
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
+		},
+	}
+}
+
+func startfunc(cfg *config) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
-		my_first_line := scanner.Text()
-		my_first_word := cleanInput(my_first_line)
-		fmt.Println("Your command was:", my_first_word[0])
+		my_first_line := cleanInput(scanner.Text())
+		if len(my_first_line) == 0 {
+			continue
+		}
+		my_first_word := my_first_line[0]
+		cmd, ok := getCommands()[my_first_word]
+		if !ok {
+			fmt.Println("Unknown command")
+			continue
+		}
+
+		err := cmd.callback(cfg)
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
 	}
 }
 
