@@ -51,7 +51,7 @@ func commandMap(cfg *config) error { // the Map command
 	return nil
 }
 
-func commandMapb(cfg *config) error { // the Map command
+func commandMapb(cfg *config) error { // the Mapb command
 	url := *cfg.prevLocationsURL
 	var resp pokeapi.LocationAreaListResponse
 	if cfg.prevLocationsURL == nil {
