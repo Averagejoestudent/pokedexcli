@@ -9,9 +9,9 @@ import (
 )
 
 type config struct {
-	//pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
 	prevLocationsURL *string
+	AreaName         *string
 }
 
 type cliCommand struct {
@@ -22,6 +22,11 @@ type cliCommand struct {
 
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
+		"explore": {
+			name:        "explore",
+			description: "Find pokemon in a specific location",
+			callback:    commandExplore,
+		},
 		"mapb": {
 			name:        "mapb",
 			description: "displays the names of 20 location areas",
@@ -55,6 +60,7 @@ func startfunc(cfg *config) {
 			continue
 		}
 		my_first_word := my_first_line[0]
+		if my_first_word == "explore"{ cfg.AreaName = &my_first_line[1]}
 		cmd, ok := getCommands()[my_first_word]
 		if !ok {
 			fmt.Println("Unknown command")

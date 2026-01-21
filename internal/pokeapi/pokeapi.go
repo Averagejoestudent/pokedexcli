@@ -6,6 +6,16 @@ import (
 	"net/http"
 )
 
+type PokemonResponse struct {
+	PokemonEncounters []struct {
+		Pokemon struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
+}
+
+
 type NamedAPIResource struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
