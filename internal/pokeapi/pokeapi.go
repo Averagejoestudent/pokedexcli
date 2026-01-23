@@ -5,15 +5,22 @@ import (
 	"io"
 	"net/http"
 )
+type BaseExperience struct{
+	BaseExp int `json:"base_experience"`
+}
+
+
 
 type PokemonResponse struct {
-	PokemonEncounters []struct {
-		Pokemon struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"pokemon"`
-	} `json:"pokemon_encounters"`
+	PokemonEncounters []PokemonEncounters `json:"pokemon_encounters"`
 }
+type PokemonEncounters struct {
+	Pokemon Pokemon	`json:"pokemon"`
+	} 
+
+type Pokemon struct {
+			Name string `json:"name"`
+		} 
 
 
 type NamedAPIResource struct {
@@ -28,7 +35,7 @@ type LocationAreaListResponse struct {
 	Results  []NamedAPIResource `json:"results"`
 }
 
-func Location(url string) ([]byte, error) {
+func JsonFrmGet(url string) ([]byte, error) {
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err

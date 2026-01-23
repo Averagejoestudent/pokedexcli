@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/Averagejoestudent/pokedexcli/internal/pokeapi"
 	//"errors"
 )
 
 type config struct {
 	nextLocationsURL *string
 	prevLocationsURL *string
-	AreaName         *string
+	Argument         *string
+	caught_Pokemon   map[string]pokeapi.Pokemon
 }
 
 type cliCommand struct {
@@ -22,6 +25,11 @@ type cliCommand struct {
 
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
+		"catch": {
+			name:        "catch",
+			description: "Catch pokemon",
+			callback:    commandCatch,
+		},
 		"explore": {
 			name:        "explore",
 			description: "Find pokemon in a specific location",
@@ -60,7 +68,12 @@ func startfunc(cfg *config) {
 			continue
 		}
 		my_first_word := my_first_line[0]
-		if my_first_word == "explore"{ cfg.AreaName = &my_first_line[1]}
+		if my_first_word == "explore" {
+			cfg.Argument = &my_first_line[1]
+		}
+		if my_first_word == "catch" {
+			cfg.Argument = &my_first_line[1]
+		}
 		cmd, ok := getCommands()[my_first_word]
 		if !ok {
 			fmt.Println("Unknown command")
