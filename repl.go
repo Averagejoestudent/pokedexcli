@@ -7,48 +7,84 @@ import (
 	"strings"
 
 	"github.com/Averagejoestudent/pokedexcli/internal/pokeapi"
-	//"errors"
 )
 
 type config struct {
+	pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
 	prevLocationsURL *string
-	Argument         *string
-	caught_Pokemon   map[string]pokeapi.Pokemon
+	caughtPokemon    map[string]pokeapi.Pokemon
+}
+
+func startRepl(cfg *config) {
+	reader := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Print("Pokedex > ")
+		reader.Scan()
+
+		words := cleanInput(reader.Text())
+		if len(words) == 0 {
+			continue
+		}
+
+		commandName := words[0]
+		args := []string{}
+		if len(words) > 1 {
+			args = words[1:]
+		}
+
+		command, exists := getCommands()[commandName]
+		if exists {
+			err := command.callback(cfg, args...)
+			if err != nil {
+				fmt.Println(err)
+			}
+			continue
+		} else {
+			fmt.Println("Unknown command")
+			continue
+		}
+	}
+}
+
+func cleanInput(text string) []string {
+	output := strings.ToLower(text)
+	words := strings.Fields(output)
+	return words
 }
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, ...string) error
 }
 
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
-		"catch": {
-			name:        "catch",
-			description: "Catch pokemon",
-			callback:    commandCatch,
-		},
-		"explore": {
-			name:        "explore",
-			description: "Find pokemon in a specific location",
-			callback:    commandExplore,
-		},
-		"mapb": {
-			name:        "mapb",
-			description: "displays the names of 20 location areas",
-			callback:    commandMapb,
-		},
-		"map": {
-			name:        "map",
-			description: "displays the names of 20 location areas",
-			callback:    commandMap,
-		},
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+		},
+		"catch": {
+			name:        "catch <pokemon_name>",
+			description: "Attempt to catch a pokemon",
+			callback:    commandCatch,
+		},
+		"explore": {
+			name:        "explore <location_name>",
+			description: "Explore a location",
+			callback:    commandExplore,
+		},
+		"map": {
+			name:        "map",
+			description: "Get the next page of locations",
+			callback:    commandMapf,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Get the previous page of locations",
+			callback:    commandMapb,
 		},
 		"exit": {
 			name:        "exit",
@@ -56,45 +92,4 @@ func getCommands() map[string]cliCommand {
 			callback:    commandExit,
 		},
 	}
-}
-
-func startfunc(cfg *config) {
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Print("Pokedex > ")
-		scanner.Scan()
-		my_first_line := cleanInput(scanner.Text())
-		if len(my_first_line) == 0 {
-			continue
-		}
-		my_first_word := my_first_line[0]
-		if my_first_word == "explore" {
-			cfg.Argument = &my_first_line[1]
-		}
-		if my_first_word == "catch" {
-			cfg.Argument = &my_first_line[1]
-		}
-		cmd, ok := getCommands()[my_first_word]
-		if !ok {
-			fmt.Println("Unknown command")
-			continue
-		}
-
-		err := cmd.callback(cfg)
-		if err != nil {
-			fmt.Println("Error:", err)
-		}
-	}
-}
-
-func cleanInput(text string) []string {
-	var my_string []string
-
-	my_text := strings.ToLower(text)
-
-	my_text = strings.TrimSpace(my_text)
-
-	my_string = strings.Fields(my_text)
-
-	return my_string
 }
